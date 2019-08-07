@@ -2,7 +2,8 @@
     "name": "pedroaugusto/candidatos",
     "description": "get name and phone from spreadsheet",
     "require": {
-        "phpoffice/phpspreadsheet": "^1.8"
+        "phpoffice/phpspreadsheet": "^1.8",
+        "danielstjules/stringy": "^3.1"
     },
     "authors": [
         {
