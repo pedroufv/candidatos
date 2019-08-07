@@ -1,0 +1,13 @@
+{
+    "name": "pedroaugusto/candidatos",
+    "description": "get name and phone from spreadsheet",
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.8"
+    },
+    "authors": [
+        {
+            "name": "Pedro Augusto Mendes e Silva",
+            "email": "pedro.e@ufv.br"
+        }
+    ]
+}
