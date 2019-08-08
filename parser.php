@@ -5,6 +5,10 @@ require 'vendor/autoload.php';
 use Stringy\StaticStringy as S;
 use Helpers\Phone;
 
+$formated = false;
+if(isset($_SERVER['argv'][1]) AND  $_SERVER['argv'][1] == 'formatted')
+    $formated = true;
+
 $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(); // trocar para IO para usar escrita
 
 $inputFileName = './docs/mg/Excel-MG-Q-Z.xlsx'; // ler o diretorio docs e iterar sobre ele
@@ -44,7 +48,8 @@ foreach ($rowIterator as $row) {
     $string = $currencyPhone;
     $ddd = substr($currencyPhone, 0, 2);
     while (strlen($string)%11 == 0 AND strlen($string) != 0) {
-        $currencyPhone = Phone::formatPhone(substr($string, 0, 11));
+        $currencyPhone = substr($string, 0, 11);
+        $currencyFormatedPhone = $formated ? ", ".Phone::formatPhone($currencyPhone) : '';
         $string = substr($string, 11);
 
         if(strlen($string) == 9)
@@ -52,16 +57,17 @@ foreach ($rowIterator as $row) {
 
         $countPhone++;
 
-        echo "$currencyCandidate, $currencyPhone (".strlen($currencyPhone).")" . PHP_EOL;
+        echo "$currencyCandidate, $currencyPhone$currencyFormatedPhone". PHP_EOL;
     }
 
     while (strlen($string)%10 == 0 AND strlen($string) != 0) {
-        $currencyPhone = Phone::formatPhone(substr($string, 0, 2) . 9 . substr($string, 2));
+        $currencyPhone = substr($string, 0, 2) . 9 . substr($string, 2);
+        $currencyFormatedPhone = $formated ? ", ".Phone::formatPhone($currencyPhone) : '';
         $string = substr($string, 10);
 
         $countPhone++;
 
-        echo "$currencyCandidate, $currencyPhone (".strlen($currencyPhone).")" . PHP_EOL;
+        echo "$currencyCandidate, $currencyPhone$currencyFormatedPhone". PHP_EOL;
     }
 }
 
