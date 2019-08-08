@@ -4,31 +4,70 @@ require 'vendor/autoload.php';
 
 use Stringy\StaticStringy as S;
 
-$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(); // trocar para IO para usar escrita
 
-$inputFileName = './docs/mg/Excel-MG-Q-Z.xlsx';
+$inputFileName = './docs/mg/Excel-MG-Q-Z.xlsx'; // ler o diretorio docs e iterar sobre ele
 $spreadsheet = $reader->load($inputFileName);
 
 $sheet = $spreadsheet->getSheet(0);
 $rowIterator = $sheet->getRowIterator();
 
+$count = 0;
+$countPhone = 0;
+$countEmptyName = 0;
+$countEmptyPhone = 0;
 foreach ($rowIterator as $row) {
-	$rowIndex = $row->getRowIndex();
+    $count++;
+    $rowIndex = $row->getRowIndex();
 
-	if($rowIndex == 1) continue;
+    if ($rowIndex == 1) {
+        continue;
+    }
 
-	$ignore = ['da', 'de', 'do', 'e'];
-    $currencyCandidate = S::titleize($sheet->getCell('B' . $rowIndex)->getCalculatedValue(), $ignore);
+    $ignore = ['da', 'de', 'do', 'e'];
+    $currencyCandidate = S::titleize($sheet->getCell('B'.$rowIndex)->getCalculatedValue(), $ignore);
 
-    if(empty($currencyCandidate)) continue;
+    // remove nomes vazios
+    if (empty($currencyCandidate)) {
+        $countEmptyName++;
+        $currencyCandidate = "Sem Nome";
+    }
 
-    $currencyPhone = preg_replace("/[^0-9]/","", $sheet->getCell('D' . $rowIndex)->getCalculatedValue());
+    $currencyPhone = preg_replace("/[^0-9]/", "", $sheet->getCell('D'.$rowIndex)->getCalculatedValue());
 
-	if(empty($currencyPhone)) continue;
-	
-    echo "Nome: $currencyCandidate e Telefone: $currencyPhone".PHP_EOL;
-   
+    if (empty($currencyPhone)) {
+        $countEmptyPhone++;
+        continue;
+    }
+
+    $string = $currencyPhone;
+    $ddd = substr($currencyPhone, 0, 2);
+    while (strlen($string)%11 == 0 AND strlen($string) != 0) {
+        $currencyPhone = substr($string, 0, 11);
+        $string = substr($string, 11);
+
+        if(strlen($string) == 9)
+            $string = $ddd.substr($string, 11);
+
+        $countPhone++;
+
+        echo "$currencyCandidate, $currencyPhone (".strlen($currencyPhone).")" . PHP_EOL;
+    }
+
+    while (strlen($string)%10 == 0 AND strlen($string) != 0) {
+        $currencyPhone = substr($string, 0, 2) . 9 . substr($string, 2);
+        $string = substr($string, 10);
+
+        $countPhone++;
+
+        echo "$currencyCandidate, $currencyPhone (".strlen($currencyPhone).")" . PHP_EOL;
+    }
 }
 
+echo PHP_EOL."Resumo: ".PHP_EOL;
+echo "total celulas: ". $count . PHP_EOL;
+echo "total números: ". $countPhone . PHP_EOL;
+echo "total celulas sem nome: ". $countEmptyName . PHP_EOL;
+echo "total celulas sem telefone: ". $countEmptyPhone . PHP_EOL;
 
 die(PHP_EOL);
