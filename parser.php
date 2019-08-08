@@ -3,6 +3,7 @@
 require 'vendor/autoload.php';
 
 use Stringy\StaticStringy as S;
+use Helpers\Phone;
 
 $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(); // trocar para IO para usar escrita
 
@@ -33,7 +34,7 @@ foreach ($rowIterator as $row) {
         $currencyCandidate = "Sem Nome";
     }
 
-    $currencyPhone = preg_replace("/[^0-9]/", "", $sheet->getCell('D'.$rowIndex)->getCalculatedValue());
+    $currencyPhone = Phone::onlyDigits($sheet->getCell('D'.$rowIndex)->getCalculatedValue());
 
     if (empty($currencyPhone)) {
         $countEmptyPhone++;
@@ -43,7 +44,7 @@ foreach ($rowIterator as $row) {
     $string = $currencyPhone;
     $ddd = substr($currencyPhone, 0, 2);
     while (strlen($string)%11 == 0 AND strlen($string) != 0) {
-        $currencyPhone = substr($string, 0, 11);
+        $currencyPhone = Phone::formatPhone(substr($string, 0, 11));
         $string = substr($string, 11);
 
         if(strlen($string) == 9)
@@ -55,7 +56,7 @@ foreach ($rowIterator as $row) {
     }
 
     while (strlen($string)%10 == 0 AND strlen($string) != 0) {
-        $currencyPhone = substr($string, 0, 2) . 9 . substr($string, 2);
+        $currencyPhone = Phone::formatPhone(substr($string, 0, 2) . 9 . substr($string, 2));
         $string = substr($string, 10);
 
         $countPhone++;
